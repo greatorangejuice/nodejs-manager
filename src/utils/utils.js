@@ -28,8 +28,9 @@ export const getAbsoluteDirectory = (directory) => {
 export const getFileOptions = async (directory) => {
     const absoluteDirectory = getAbsoluteDirectory(directory);
     const isExist = await isDirectoryExist(absoluteDirectory);
+    const isNotExist = !isExist
 
-    return { directory: absoluteDirectory, isExist }
+    return { directory: absoluteDirectory, isExist, isNotExist }
 }
 
 export const isDirectoryExist = async (directory) => {

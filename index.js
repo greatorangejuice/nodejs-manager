@@ -9,6 +9,7 @@ import {remove} from "./src/fs-operations/remove.js";
 import {rename} from "./src/fs-operations/rename.js";
 import {copyFile} from "./src/fs-operations/copy.js";
 import {getOs} from "./src/os-operations/os-options.js";
+import {compress} from "./src/compress.js";
 
 export const start = () => {
     sayHelloAndSetUser()
@@ -37,6 +38,7 @@ export const start = () => {
         //TODO update navigation.js
         //TODO add folder checker
         //TODO change errors
+        //TODO add .br for compress
         switch (command) {
             case 'ls':
                 showList(process.env.CURRENT_DIRECTORY).then(() => {
@@ -45,11 +47,12 @@ export const start = () => {
                 break;
             case 'cd':
                 if (parameter) {
-                    changeDirectory(parameter);
+                    changeDirectory(parameter).then(() => {
+                        showDirectory();
+                    })
                 } else {
                     showError('Invalid input');
                 }
-                showDirectory();
                 break;
             case 'up': // Need fix output
                 changeDirectory('..');
@@ -88,8 +91,23 @@ export const start = () => {
                 break;
             case 'os':
                 getOs()
-                break
+                break;
+            case 'hash':
+                //
+                break;
+            case 'compress':
+                if (parameter && parameter1) {
+                    compress(parameter, parameter1)
+                }
+                break;
+            case 'decompress':
+                if (parameter && parameter1) {
+                    compress(parameter, parameter1, true)
+                }
+            case 'hash':
+                if (parameter) {
 
+                }
         }
     })
 }
