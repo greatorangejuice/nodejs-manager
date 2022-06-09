@@ -1,21 +1,13 @@
 import fs from 'fs';
-import path from "path";
-import {getFileOptions, showError} from "../utils/utils.js";
-import {EOL} from 'os'
+import {getFileOptions} from "../utils/utils.js";
 
 export const add = async (directory) => {
-    try {
-        const normalizedPath = path.normalize(directory);
-        const absoluteDirection = path.join(process.env.CURRENT_DIRECTORY, normalizedPath)
-        const fileOptions = await getFileOptions(directory);
-
-        if (fileOptions.isExist) {
-            showError('Input error // Input name is exist', EOL);
-        } else {
-            const writeStream = fs.createWriteStream(absoluteDirection);
-            writeStream.end();
-        }
-    } catch (e) {
-        throw new Error(e)
+    const options = await getFileOptions(directory);
+    if (options.isExist) {
+        throw 'Invalid input // Input name is exist';
     }
+    const writeStream = fs.createWriteStream(options.directory);
+    writeStream.on('error', () => {
+        throw 'Operation failed';
+    });
 }

@@ -8,107 +8,109 @@ import {add} from "./src/fs-operations/create.js";
 import {remove} from "./src/fs-operations/remove.js";
 import {rename} from "./src/fs-operations/rename.js";
 import {copyFile} from "./src/fs-operations/copy.js";
-import {getOs} from "./src/os-operations/os-options.js";
+import {handleOs} from "./src/os-operations/os-options.js";
 import {compress} from "./src/compress.js";
+import {calculateHash} from "./src/fs-operations/hash.js";
+
+const handleCommand = async (command, args) => {
+    try {
+        switch (command) {
+            case 'ls':
+                await showList(process.env.CURRENT_DIRECTORY)
+                showDirectory();
+                break;
+            case 'cd':
+                if (args.length === 1) {
+                    await changeDirectory(args[0]);
+                    showDirectory();
+                } else {
+                    throw 'Invalid input';
+                }
+                break;
+            case 'up':
+                await changeDirectory('..');
+                break;
+            case 'cut':
+                if (args.length === 1) {
+                    await read(args[0]);
+                    showDirectory();
+                } else {
+                    throw 'Invalid input // Enter path'
+                }
+                break;
+            case 'add':
+                if (args.length === 1) {
+                    await add(args[0]);
+                    showDirectory();
+                } else {
+                    throw 'Invalid input // Enter path'
+                }
+                break;
+            case 'rm':
+                if (args.length === 1) {
+                    await remove(args[0])
+                    showDirectory();
+                }
+                break;
+            case 'rn':
+                if (args.length === 2) {
+                    await rename(args[0], args[1]);
+                    showDirectory();
+                }
+                break;
+            case 'cp':
+                if (args.length === 2) {
+                    await copyFile(args[0], args[1]);
+                    showDirectory();
+                }
+                break;
+            case 'mv':
+                if (args.length === 2) {
+                    await copyFile(args[0], args[1], true);
+                    showDirectory();
+                }
+                break;
+            case 'hash':
+                if (args.length === 1) {
+                    await calculateHash(args[0]);
+                    showDirectory();
+                }
+                break;
+            case 'compress':
+                if (args.length === 2) {
+                    await compress(args[0], args[1])
+                }
+                break;
+            case 'decompress':
+                if (args.length === 2) {
+                    await compress(args[0], args[1], true)
+                }
+                break;
+            case 'os':
+                if (args.length === 1) {
+                    handleOs(args[0])
+                } else {
+                    showError('Invalid input // Please provide argument')
+                }
+                showDirectory();
+                break;
+        }
+    } catch (e) {
+        showError(e)
+    }
+}
 
 export const start = () => {
     sayHelloAndSetUser()
     showDirectory()
     //TODO add in init function
+    //TODO fix EOL
+    //TODO fix remove
     process.env.CURRENT_DIRECTORY = homedir();
-
-    process.stdin.on('data', (data) => {
+    process.stdin.on('data', async (data) => {
         showDirectory()
-        const chunk = data.toString().trim().split(' ');
-        const command = chunk[0];
-        let parameter, parameter1, parameter2;
-        if (chunk.length > 1) {
-            parameter = chunk[1];
-            if (chunk[2]) {
-                parameter1 = chunk[2];
-            }
-            if (chunk[3]) {
-                parameter2 = chunk[3];
-            }
-        }
-        // parameter 1
-        // parameter 2
-        //TODO add handler for bad commands
-        //TODO warp switch in async func
-        //TODO update navigation.js
-        //TODO add folder checker
-        //TODO change errors
-        //TODO add .br for compress
-        switch (command) {
-            case 'ls':
-                showList(process.env.CURRENT_DIRECTORY).then(() => {
-                    showDirectory();
-                })
-                break;
-            case 'cd':
-                if (parameter) {
-                    changeDirectory(parameter).then(() => {
-                        showDirectory();
-                    })
-                } else {
-                    showError('Invalid input');
-                }
-                break;
-            case 'up': // Need fix output
-                changeDirectory('..');
-                showDirectory();
-                break;
-            case 'cut':
-                if (parameter) {
-                    read(parameter);
-                }
-                break;
-            case 'add':
-                if (parameter) {
-                    add(parameter);
-                }
-                break;
-            case 'rm':
-                if (parameter) {
-                    remove(parameter).then(() => {
-                        // showDirectory()
-                    })
-                }
-            case 'rn':
-                if (parameter && parameter1) {
-                    rename(parameter, parameter1);
-                }
-                break;
-            case 'cp':
-                if (parameter && parameter1) {
-                    copyFile(parameter, parameter1);
-                }
-                break;
-            case 'mv':
-                if (parameter && parameter1) {
-                    copyFile(parameter, parameter1, true);
-                }
-                break;
-            case 'os':
-                getOs()
-                break;
-            case 'hash':
-                //
-                break;
-            case 'compress':
-                if (parameter && parameter1) {
-                    compress(parameter, parameter1)
-                }
-                break;
-            case 'decompress':
-                if (parameter && parameter1) {
-                    compress(parameter, parameter1, true)
-                }
-            case 'hash':
-                if (parameter) {
-
-                }
-        }
+        const [command, ...args] = data.toString().trim().split(/\s+/);
+        await handleCommand(command, args)
     })
 }
 

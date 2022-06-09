@@ -1,27 +1,19 @@
 import path from 'path'
 import {homedir} from 'os'
-import {isDirectoryExist} from "./fs-operations/list.js";
-import {showError} from "./utils/utils.js";
+import {getFileOptions} from "./utils/utils.js";
 
 export const changeDirectory = async (directory) => {
-    const normalizedPath = path.normalize(directory);
-    const isAbsolutePath = normalizedPath.includes(homedir());
-
-    if (isAbsolutePath && await isDirectoryExist(normalizedPath)) {
-        process.env.CURRENT_DIRECTORY = normalizedPath;
-    } else if (!isAbsolutePath) {
-        const currentDirectory = process.env.CURRENT_DIRECTORY;
-        const absoluteDirectory = path.join(currentDirectory, normalizedPath);
-        if (await isDirectoryExist(absoluteDirectory)) {
-            process.env.CURRENT_DIRECTORY = absoluteDirectory
-        } else {
-            showError('Direction is not exist')
-        }
-        if (!absoluteDirectory.includes(homedir())) {
-            process.env.CURRENT_DIRECTORY = homedir();
-        }
+    const options = await getFileOptions(directory);
+    const rootPath = path.parse(homedir()).root;
+    if (options.isNotExist) {
+        throw 'Path does not exist';
+    }
+    if (options.directory.substring(0, rootPath.length) !== rootPath) {
+        throw 'Cannot change the disk drive';
+    }
+    if (options.isFolder) {
+        process.env.CURRENT_DIRECTORY = options.directory;
     } else {
-        showError('Direction is not exist')
+        throw 'Path is not a directory';
     }
 }
-
