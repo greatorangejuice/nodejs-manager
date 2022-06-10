@@ -28,7 +28,7 @@ export const getAbsoluteDirectory = (directory) => {
 export const getFileOptions = async (directory) => {
     const rootPath = path.parse(homedir()).root;
     let normalizedPath = path.normalize(directory);
-    const isAbsolutePath = normalizedPath.substring(0, rootPath.length) === rootPath;
+    const isAbsolutePath = normalizedPath.substring(0, rootPath.length) === rootPath; // Here we can use path.IsAbsolute, but we need to handle the root path.
     if (!isAbsolutePath) {
         normalizedPath = getAbsoluteDirectory(directory)
     }

@@ -7,6 +7,9 @@ export const calculateHash = async (sourcePath) => {
         if (sourceOptions.isFolder) {
             throw 'Invalid input // Cannot calculate hash for folder'
         }
+        if (sourceOptions.isNotExist) {
+            throw 'Invalid input // File is not existing'
+        }
         if (sourceOptions.isExist) {
             const readStream = createReadStream(sourceOptions.directory)
             const hash = crypto.createHash('sha1').setEncoding('hex');

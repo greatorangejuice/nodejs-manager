@@ -1,79 +1,118 @@
+import {showDirectory, showError, showMessage} from "./utils/utils.js";
 import {showList} from "./fs-operations/list.js";
-import {showDirectory, showError} from "./utils/utils.js";
 import {changeDirectory} from "./navigation.js";
 import {read} from "./fs-operations/read.js";
 import {add} from "./fs-operations/create.js";
 import {remove} from "./fs-operations/remove.js";
 import {rename} from "./fs-operations/rename.js";
 import {copyFile} from "./fs-operations/copy.js";
-import {getOs} from "./os-operations/os-options.js";
-import {compress} from "./compress.js";
+import {calculateHash} from "./fs-operations/hash.js";
+import {compress} from "./fs-operations/compress.js";
+import {handleOs} from "./os-operations/os-options.js";
 
-export const handleCommand = async (command) => {
-    switch (command) {
-        case 'ls':
-            showList(process.env.CURRENT_DIRECTORY).then(() => {
+export const handleCommand = async (command, args) => {
+    try {
+        switch (command) {
+            case '.exit':
+                showMessage(`Thank you for using File Manager, ${process.env.USERNAME}!`)
+                process.exit();
+                break;
+            case 'ls':
+                await showList(process.env.CURRENT_DIRECTORY)
                 showDirectory();
-            })
-            break;
-        case 'cd':
-            if (parameter) {
-                await changeDirectory(parameter);
+                break;
+            case 'cd':
+                if (args.length === 1) {
+                    await changeDirectory(args[0]);
+                    showDirectory();
+                } else {
+                    throw 'Invalid input';
+                }
+                break;
+            case 'up':
+                await changeDirectory('..');
                 showDirectory();
-            } else {
-                showError('Invalid input');
-            }
-            break;
-        case 'up': // Need fix output
-            await changeDirectory('..');
-            showDirectory();
-            break;
-        case 'cut':
-            if (parameter) {
-                await read(parameter);
-            }
-            break;
-        case 'add':
-            if (parameter) {
-                await add(parameter);
-            }
-            break;
-        case 'rm':
-            if (parameter) {
-                remove(parameter).then(() => {
-                    // showDirectory()
-                })
-            }
-            break;
-        case 'rn':
-            if (parameter && parameter1) {
-                await rename(parameter, parameter1);
-            }
-            break;
-        case 'cp':
-            if (parameter && parameter1) {
-                await copyFile(parameter, parameter1);
-            }
-            break;
-        case 'mv':
-            if (parameter && parameter1) {
-                await copyFile(parameter, parameter1, true);
-            }
-            break;
-        case 'os':
-            getOs()
-            break;
-        case 'hash':
-            //
-            break;
-        case 'compress':
-            if (parameter && parameter1) {
-                await compress(parameter, parameter1)
-            }
-            break;
-        case 'decompress':
-            if (parameter && parameter1) {
-                await compress(parameter, parameter1, true)
-            }
+                break;
+            case 'cut':
+                if (args.length === 1) {
+                    await read(args[0]);
+                    showDirectory();
+                } else {
+                    throw 'Invalid input // Enter path'
+                }
+                break;
+            case 'add':
+                if (args.length === 1) {
+                    await add(args[0]);
+                } else {
+                    throw 'Invalid input // Enter path'
+                }
+                break;
+            case 'rm':
+                if (args.length === 1) {
+                    await remove(args[0])
+                    showDirectory();
+                } else {
+                    throw 'Invalid input';
+                }
+                break;
+            case 'rn':
+                if (args.length === 2) {
+                    await rename(args[0], args[1]);
+                    showDirectory();
+                } else {
+                    throw 'Invalid input';
+                }
+                break;
+            case 'cp':
+                if (args.length === 2) {
+                    await copyFile(args[0], args[1]);
+                    showDirectory();
+                } else {
+                    throw 'Invalid input';
+                }
+                break;
+            case 'mv':
+                if (args.length === 2) {
+                    await copyFile(args[0], args[1], true);
+                    showDirectory();
+                } else {
+                    throw 'Invalid input';
+                }
+                break;
+            case 'hash':
+                if (args.length === 1) {
+                    await calculateHash(args[0]);
+                } else {
+                    throw 'Invalid input';
+                }
+                break;
+            case 'compress':
+                if (args.length === 2) {
+                    await compress(args[0], args[1], false)
+                } else {
+                    throw 'Invalid input';
+                }
+                break;
+            case 'decompress':
+                if (args.length === 2) {
+                    await compress(args[0], args[1], true)
+                } else {
+                    throw 'Invalid input';
+                }
+                break;
+            case 'os':
+                if (args.length === 1) {
+                    handleOs(args[0])
+                } else {
+                    showError('Invalid input // Please provide argument')
+                }
+                showDirectory();
+                break;
+            default:
+                throw 'Invalid input';
+        }
+    } catch (e) {
+        showError(e)
     }
 }

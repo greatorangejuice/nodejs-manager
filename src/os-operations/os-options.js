@@ -4,6 +4,7 @@ import {showMessage} from "../utils/utils.js";
 export const handleOs = (parameter) => {
     switch (parameter) {
         case '--EOL':
+            showMessage(JSON.stringify(os.EOL));
             break;
         case '--cpus':
             const cpus = os.cpus();
@@ -24,5 +25,7 @@ export const handleOs = (parameter) => {
             const architecture = os.arch()
             showMessage(architecture)
             break;
+        default:
+            throw 'Invalid input'
     }
 }

@@ -1,6 +1,6 @@
 import {createReadStream, createWriteStream} from 'fs';
 import zlib from 'zlib';
-import {getFileOptions, showError} from "./utils/utils.js";
+import {getFileOptions} from "../utils/utils.js";
 import {EOL} from "os";
 
 export const compress = async (source, destination, decompress = false) => {
@@ -26,7 +26,7 @@ export const compress = async (source, destination, decompress = false) => {
         throw 'Operation failed';
     })
 
-    const message = decompress ? ' done compressing' : ' done decompressing'
+    const message = decompress ? ' done decompressing' : ' done compressing'
     stream.on('finish', () => {
         process.stdout.write(`\x1b[36m${source}\x1b[0m \x1b[33m${message}\x1b[0m${EOL}`);
     })
