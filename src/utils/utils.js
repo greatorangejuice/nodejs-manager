@@ -1,7 +1,6 @@
-import os, {EOL, homedir} from 'os';
+import os, {EOL} from 'os';
 import path from "path";
-import {access} from "fs/promises";
-import fs from 'fs/promises';
+import fs, {access} from "fs/promises";
 
 export const showDirectory = () => {
     if (!process.env.CURRENT_DIRECTORY) {
@@ -26,9 +25,8 @@ export const getAbsoluteDirectory = (directory) => {
 }
 
 export const getFileOptions = async (directory) => {
-    const rootPath = path.parse(homedir()).root;
     let normalizedPath = path.normalize(directory);
-    const isAbsolutePath = normalizedPath.substring(0, rootPath.length) === rootPath; // Here we can use path.IsAbsolute, but we need to handle the root path.
+    const isAbsolutePath = path.isAbsolute(normalizedPath);
     if (!isAbsolutePath) {
         normalizedPath = getAbsoluteDirectory(directory)
     }
